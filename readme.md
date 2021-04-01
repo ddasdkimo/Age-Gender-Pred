@@ -6,7 +6,7 @@ This repository is used for finding and predicting from an image one or multiple
 ![Example](https://github.com/adamzjk/Age-Gender-Pred/blob/master/example/lotr.jpg?raw=true)
 ## docker
 docker run --gpus all -d -p 5000:5000 --name mydocker --restart=always raidavid:rai_ai_age_gender
-##
+## API
 curl --location --request POST '127.0.0.1:5000/detect' \
 --form 'token="a"' \
 --form 'file=@"Waqs6H9K3/rai00003.jpg"'
