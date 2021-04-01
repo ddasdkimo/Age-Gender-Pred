@@ -9,7 +9,6 @@ from flask_cors import CORS
 from ai_tools import AiTools
 app = Flask(__name__)
 CORS(app)
-
 mAiTools = AiTools()
 
 

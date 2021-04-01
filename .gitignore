@@ -3,3 +3,7 @@
 **/.idea/
 **/__pycache__/
 **/backup/
+photo/
+.vscode/launch.json
+.vscode/settings.json
+__MACOSX/._models

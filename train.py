@@ -5,3 +5,4 @@ if __name__ == "__main__":
                      new_training_process=False,
                      new_last_layer=True)
     a.train_model()
+    
