@@ -12,4 +12,4 @@ if not os.path.isdir("models/"):
 wget.download('https://ftpweb.intemotech.com/rai_ai_models/age_gender_models/models.zip', out='models/modwls.zip')
 zip_list('models/modwls.zip')
 
-os.remove(out_fname)
+os.remove('models/modwls.zip')
