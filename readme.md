@@ -1,10 +1,15 @@
 # Age Gender Prediction				
-
 This repository is used for finding and predicting from an image one or multiple human's gender and age(confidence scores provided for both age and gender). **94% acc** for gender and **MAE of 4.2** for age can be achieved after just 32 epochs of training. 
 
 
 
 ![Example](https://github.com/adamzjk/Age-Gender-Pred/blob/master/example/lotr.jpg?raw=true)
+## docker
+docker run --gpus all -d -p 5000:5000 --name mydocker --restart=always raidavid:rai_ai_age_gender
+##
+curl --location --request POST '127.0.0.1:5000/detect' \
+--form 'token="a"' \
+--form 'file=@"Waqs6H9K3/rai00003.jpg"'
 
 ## Requirements
 

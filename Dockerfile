@@ -1,19 +1,19 @@
 FROM pytorch/pytorch:1.8.0-cuda11.1-cudnn8-devel
 MAINTAINER rai_age_gender
 
-RUN apt-get update && \
-apt-get -y install cmake && \
-python -m pip install --upgrade pip && \
-apt-get -y install python-scipy && \
-pip install opencv-python && \
-pip install pandas && \
-pip install dlib && \
-pip install imutils && \
-pip install scipy && \
-conda install skimage && \
-export DEBIAN_FRONTEND=noninteractive && \
-apt-get -y install git-all && \
-git clone https://github.com/ddasdkimo/Age-Gender-Pred.git &&\
+RUN apt-get update
+RUN apt-get -y install cmake
+RUN python -m pip install --upgrade pip
+RUN apt-get -y install python-scipy
+RUN pip install opencv-python
+RUN pip install pandas
+RUN pip install dlib
+RUN pip install imutils
+RUN pip install scipy
+RUN conda install scikit-image
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get -y install git-all
+RUN git clone https://github.com/ddasdkimo/Age-Gender-Pred.git &&\
 cd Age-Gender-Pred && \
 pip install -r requirements.txt &&\
 python download_models.py
