@@ -147,7 +147,7 @@ class AgeGenPredModel(torch.nn.Module, ):
     weigh = np.linspace(1, self.age_cls_unit, self.age_cls_unit)
 
     for face in faces:
-      face = Variable(torch.unsqueeze(face, 0))
+      face = Variable(torch.unsqueeze(face, 0)).to('cuda')
       gen_out, age_out = self.forward(face)
 
       gen_out = F.softmax(gen_out, 1)

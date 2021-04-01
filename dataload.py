@@ -16,17 +16,17 @@ age_cls_unit = int(parser['RacNet']['age_cls_unit'])
 
 # distribution of IMDB-WIKi dataset I: IMDB-Wiki
 imdb_distr = [25, 63, 145, 54, 46, 113, 168, 232, 455, 556,
-                752, 1089, 1285, 1654, 1819, 1844, 2334, 2828,
-                3346, 4493, 6279, 7414, 7706, 9300, 9512, 11489,
-                10481, 12483, 11280, 13096, 12766, 14346, 13296,
-                12525, 12568, 12278, 12694, 11115, 12089, 11994,
-                9960, 9599, 9609, 8967, 7940, 8267, 7733, 6292,
-                6235, 5596, 5129, 4864, 4466, 4278, 3515, 3644,
-                3032, 2841, 2917, 2755, 2853, 2380, 2169, 2084,
-                1763, 1671, 1556, 1343, 1320, 1121, 1196, 949,
-                912, 710, 633, 581, 678, 532, 491, 428, 367,
-                339, 298, 203, 258, 161, 136, 134, 121, 63, 63,
-                82, 40, 37, 24, 16, 18, 11, 4, 9]
+              752, 1089, 1285, 1654, 1819, 1844, 2334, 2828,
+              3346, 4493, 6279, 7414, 7706, 9300, 9512, 11489,
+              10481, 12483, 11280, 13096, 12766, 14346, 13296,
+              12525, 12568, 12278, 12694, 11115, 12089, 11994,
+              9960, 9599, 9609, 8967, 7940, 8267, 7733, 6292,
+              6235, 5596, 5129, 4864, 4466, 4278, 3515, 3644,
+              3032, 2841, 2917, 2755, 2853, 2380, 2169, 2084,
+              1763, 1671, 1556, 1343, 1320, 1121, 1196, 949,
+              912, 710, 633, 581, 678, 532, 491, 428, 367,
+              339, 298, 203, 258, 161, 136, 134, 121, 63, 63,
+              82, 40, 37, 24, 16, 18, 11, 4, 9]
 imdb_distr[age_cls_unit - 1] = sum(imdb_distr[age_cls_unit - 1:])
 imdb_distr = imdb_distr[:age_cls_unit]
 imdb_distr = np.array(imdb_distr, dtype='float')
@@ -60,80 +60,82 @@ loss_weight = loss_weight.type(torch.FloatTensor)
 
 
 class FaceDataset(Dataset):
-  """ read images from disk dynamically """
+    """ read images from disk dynamically """
 
-  def __init__(self, datapath, transformer):
-    """
-    init function
-    :param datapath: datapath to aligned folder  
-    :param transformer: image transformer
-    """
-    if datapath[-1] != '/':
-      print("[WARNING] PARAM: datapath SHOULD END WITH '/'")
-      datapath += '/'
-    self.datapath     = datapath
-    self.pics         = [f[len(datapath) : ] for f in
-                         glob.glob(datapath + "*.jpg")]
-    self.transformer  = transformer
-    self.age_divde = float(parser['DATA']['age_divide'])
-    self.age_cls_unit = int(parser['RacNet']['age_cls_unit'])
+    def __init__(self, datapath, transformer):
+        """
+        init function
+        :param datapath: datapath to aligned folder  
+        :param transformer: image transformer
+        """
+        if datapath[-1] != '/':
+            print("[WARNING] PARAM: datapath SHOULD END WITH '/'")
+            datapath += '/'
+        self.datapath = datapath
+        self.pics = [f[len(datapath):] for f in
+                     glob.glob(datapath + "*.jpg")]
+        self.transformer = transformer
+        self.age_divde = float(parser['DATA']['age_divide'])
+        self.age_cls_unit = int(parser['RacNet']['age_cls_unit'])
 
-    self.age_cls = {x: self.GaussianProb(x) for x in range(1, self.age_cls_unit + 1)}
-    self.age_cls_zeroone = {x: self.ZeroOneProb(x) for x in range(1, self.age_cls_unit + 1)}
+        self.age_cls = {x: self.GaussianProb(
+            x) for x in range(1, self.age_cls_unit + 1)}
+        self.age_cls_zeroone = {x: self.ZeroOneProb(
+            x) for x in range(1, self.age_cls_unit + 1)}
 
-  def __len__(self):
-    return len(self.pics)
+    def __len__(self):
+        return len(self.pics)
 
-  def GaussianProb(self, true, var = 2.5):
-    x = np.array(range(1, self.age_cls_unit + 1), dtype='float')
-    probs = np.exp(-np.square(x - true) / (2 * var ** 2)) / (var * (2 * np.pi ** .5))
-    return probs / probs.max()
+    def GaussianProb(self, true, var=2.5):
+        x = np.array(range(1, self.age_cls_unit + 1), dtype='float')
+        probs = np.exp(-np.square(x - true) / (2 * var ** 2)) / \
+            (var * (2 * np.pi ** .5))
+        return probs / probs.max()
 
-  def ZeroOneProb(self, true):
-    x = np.zeros(shape=(self.age_cls_unit, ))
-    x[true - 1] = 1
-    return x
+    def ZeroOneProb(self, true):
+        x = np.zeros(shape=(self.age_cls_unit, ))
+        x[true - 1] = 1
+        return x
 
+    def __getitem__(self, idx):
+        """
+        get images and labels
+        :param idx: image index 
+        :return: image: transformed image, gender: torch.LongTensor, age: torch.FloatTensor
+        """
+        # read image and labels
+        img_name = self.datapath + self.pics[idx]
+        img = io.imread(img_name)
+        if len(img.shape) == 2:  # gray image
+            img = np.repeat(img[:, :, np.newaxis], 3, axis=2)
+        (age, gender) = re.findall(
+            r"([^_]*)_([^_]*)_[^_]*.jpg", self.pics[idx])[0]
+        age = max(1., min(float(age), float(self.age_cls_unit)))
 
-  def __getitem__(self, idx):
-    """
-    get images and labels
-    :param idx: image index 
-    :return: image: transformed image, gender: torch.LongTensor, age: torch.FloatTensor
-    """
-    # read image and labels
-    img_name = self.datapath + self.pics[idx]
-    img = io.imread(img_name)
-    if len(img.shape) == 2: # gray image
-      img = np.repeat(img[:, :, np.newaxis], 3, axis=2)
-    (age, gender) = re.findall(r"([^_]*)_([^_]*)_[^_]*.jpg", self.pics[idx])[0]
-    age = max(1., min(float(age), float(self.age_cls_unit)))
+        # preprcess images
+        if self.transformer:
+            img = transforms.ToPILImage()(img)
+            image = self.transformer(img)
+        else:
+            image = torch.from_numpy(img)
 
-    # preprcess images
-    if self.transformer:
-      img = transforms.ToPILImage()(img)
-      image = self.transformer(img)
-    else:
-      image = torch.from_numpy(img)
+        # preprocess labels
+        gender = float(gender)
+        gender = torch.from_numpy(np.array([gender], dtype='float'))
+        gender = gender.type(torch.LongTensor)
 
-    # preprocess labels
-    gender = float(gender)
-    gender = torch.from_numpy(np.array([gender], dtype='float'))
-    gender = gender.type(torch.LongTensor)
+        age_rgs_label = torch.from_numpy(
+            np.array([age / self.age_divde], dtype='float'))
+        age_rgs_label = age_rgs_label.type(torch.FloatTensor)
 
-    age_rgs_label = torch.from_numpy(np.array([age / self.age_divde], dtype='float'))
-    age_rgs_label = age_rgs_label.type(torch.FloatTensor)
+        age_cls_label = self.age_cls[int(age)]
+        # age_cls_label = self.age_cls_zeroone[int(age)]
 
-    age_cls_label = self.age_cls[int(age)]
-    # age_cls_label = self.age_cls_zeroone[int(age)]
+        age_cls_label = torch.from_numpy(
+            np.array([age_cls_label], dtype='float'))
+        age_cls_label = age_cls_label.type(torch.FloatTensor)
 
-    age_cls_label = torch.from_numpy(np.array([age_cls_label], dtype='float'))
-    age_cls_label = age_cls_label.type(torch.FloatTensor)
-
-    # image of shape [256, 256]
-    # gender of shape [,1] and value in {0, 1}
-    # age of shape [,1] and value in [0 ~ 10)
-    return image, gender, age_rgs_label, age_cls_label
-
-
-
+        # image of shape [256, 256]
+        # gender of shape [,1] and value in {0, 1}
+        # age of shape [,1] and value in [0 ~ 10)
+        return image, gender, age_rgs_label, age_cls_label
