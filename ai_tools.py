@@ -42,10 +42,10 @@ class AiTools:
             # draw a rectange to bound the face
             cv2.rectangle(img, (x, y), (x + w, y + h), color, 4)
             point_arr.append({
-                "xmax": x,
-                "xmin": x + w,
-                "ymax": y,
-                "ymin": y + h
+                "xmin": x,
+                "xmax": x + w,
+                "ymin": y,
+                "ymax": y + h
             })
             # fill an area with color for text show
             cv2.rectangle(img, (x, y + h - fill_h),
