@@ -66,7 +66,7 @@ class AiTools:
                         thickness=thickness)
             gen_pred_arr.append(gen_pred)
             age_pred_arr.append(age_pred)
-        return img, gen_pred_arr, age_pred_arr, point_arr
+        return img, gen_pred_arr, age_pred_arr, point_arr,100 * gen_prob
 
     def eval_live(self):
         # 使用鏡頭測試
@@ -91,5 +91,5 @@ class AiTools:
 
     def detect(self, image):
         # 圖片辨識
-        labeled, gen_pred, age_pred, point_arr = self.eval_single(image)
-        return labeled, gen_pred, age_pred, point_arr
+        labeled, gen_pred, age_pred, point_arr ,p= self.eval_single(image)
+        return labeled, gen_pred, age_pred, point_arr,p

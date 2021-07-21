@@ -11,7 +11,7 @@ app = Flask(__name__)
 CORS(app)
 mAiTools = AiTools()
 
-
+savepath = "/dev/shm/"
 @app.route("/detect", methods=['POST'])
 def detect():
     start = time.time()
@@ -25,26 +25,30 @@ def detect():
     # 使用時間戳記當作檔案名稱
     fileName = str(time.time())
     # 檢查資料夾是否存在
-    if not os.path.isdir("photo/"):
-        os.mkdir("photo/")
-    if not os.path.isdir("photo/"+name):
-        os.mkdir("photo/"+name)
+    if not os.path.isdir(savepath+"photo/"):
+        os.mkdir(savepath+"photo/")
+    if not os.path.isdir(savepath+"photo/"+name):
+        os.mkdir(savepath+"photo/"+name)
     filename = "photo/"+name+"/"+fileName+".jpg"
-    img.save(filename)
-    detectImgNp = cv2.imread(filename)
-    labeled, gen_pred, age_pred_arr, point_arr = mAiTools.detect(detectImgNp)
+    img.save(savepath+filename)
+    detectImgNp = cv2.imread(savepath+filename)
+    labeled, gen_pred, age_pred_arr, point_arr ,p= mAiTools.detect(detectImgNp)
     end = time.time()
     print("資料處理時間：%f 秒" % (end - start))
 
-    filename = "photo/"+name+"/"+fileName+"_detect.jpg"
-    img.save(filename)
-    cv2.imwrite(filename, labeled)
+    # filename = "photo/"+name+"/"+fileName+"_detect.jpg"
+    # img.save(filename)
+    # cv2.imwrite(filename, labeled)
     arr = []
     for i in range(len(point_arr)):
         arr.append({
             "name": "age_gender",
             "point": point_arr[i],
-            "value": int2gender[gen_pred[i]] + "," + str(age_pred_arr[i])
+            "value": int2gender[gen_pred[i]] + "," + str(age_pred_arr[i]),
+            "p":p
         })
-
+    try:
+        os.remove(savepath+filename)
+    except OSError as e:
+        print(e)
     return jsonify(arr)

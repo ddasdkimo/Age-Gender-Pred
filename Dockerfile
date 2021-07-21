@@ -23,3 +23,6 @@ CMD cd Age-Gender-Pred && \
     export LANG=C.UTF-8 && \
     export FLASK_APP=app.py && \
     flask run --no-reload --no-debugger --host 0.0.0.0
+
+
+# 自行訓練了亞洲人面孔 打包成docker raidavid/rai_ai_age_gender:0721
