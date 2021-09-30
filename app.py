@@ -100,14 +100,19 @@ def detects():
         findhead = False
         arr = []
         for i in range(len(point_arr)):
+            
+            if point_arr[i]['xmin'] + point_arr[i]['ymin'] > 0 or point_arr[i]['xmax'] != detectImgNp.shape[0] or point_arr[i]['ymax'] != detectImgNp.shape[1]:
+                findhead = True
+            if point_arr[i]['xmin'] + point_arr[i]['ymin'] == 0 and findhead:
+                point_arr[i]['xmin'] = point_arr[i]['xmin'] + 1
+                    
+            
             arr.append({
                 "name": "age_gender",
                 "point": point_arr[i],
                 "value": int2gender[gen_pred[i]] + "," + str(age_pred_arr[i]),
                 "p": p
             })
-            if point_arr[i]['xmin'] + point_arr[i]['ymin'] > 0:
-                findhead = True
         imagelist.append(arr)
         try:
             # os.remove(savepath+filename)
