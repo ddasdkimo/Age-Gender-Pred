@@ -8,6 +8,7 @@ import numpy as np
 from flask_cors import CORS
 from ai_tools import AiTools
 import threading
+import shutil
 
 app = Flask(__name__)
 CORS(app)
@@ -16,6 +17,13 @@ mAiTools = AiTools()
 savepath = "/dev/shm/"
 
 threadarrLock = threading.Lock()
+
+def delfile(path,name):
+    try:
+        shutil.move(path+name, "/face/"+os.path.basename(name))
+    except:
+        print("delerror")
+
 
 @app.route("/detect", methods=['POST'])
 def detect():
@@ -97,7 +105,9 @@ def detects():
             })
         imagelist.append(arr)
         try:
-            os.remove(savepath+filename)
+            # os.remove(savepath+filename)
+            delf = threading.Thread(target = delfile, args = (savepath,filename))
+            delf.start()
         except OSError as e:
             print(e)
     end = time.time()
