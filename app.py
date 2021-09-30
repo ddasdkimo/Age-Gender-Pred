@@ -18,9 +18,12 @@ savepath = "/dev/shm/"
 
 threadarrLock = threading.Lock()
 
-def delfile(path,name):
+def delfile(path,name,findhead,imagelist):
     try:
-        shutil.move(path+name, "/face/"+os.path.basename(name))
+        if findhead:
+            shutil.move(path+name, "/face/findhead/inf_"+imagelist[0][0]["value"]+os.path.basename(name))
+        else:
+            shutil.move(path+name, "/face/notfindhead/"+os.path.basename(name))
     except:
         print("delerror")
 
@@ -94,7 +97,7 @@ def detects():
         labeled, gen_pred, age_pred_arr, point_arr, p = mAiTools.detect(
             detectImgNp)
         threadarrLock.release()
-
+        findhead = False
         arr = []
         for i in range(len(point_arr)):
             arr.append({
@@ -103,10 +106,12 @@ def detects():
                 "value": int2gender[gen_pred[i]] + "," + str(age_pred_arr[i]),
                 "p": p
             })
+            if point_arr[i]['xmin'] + point_arr[i]['ymin'] > 0:
+                findhead = True
         imagelist.append(arr)
         try:
             # os.remove(savepath+filename)
-            delf = threading.Thread(target = delfile, args = (savepath,filename))
+            delf = threading.Thread(target = delfile, args = (savepath,filename,findhead,imagelist))
             delf.start()
         except OSError as e:
             print(e)
