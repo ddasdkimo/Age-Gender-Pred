@@ -66,30 +66,10 @@ class AiTools:
                         thickness=thickness)
             gen_pred_arr.append(gen_pred)
             age_pred_arr.append(age_pred)
-        return img, gen_pred_arr, age_pred_arr, point_arr
+        return img, gen_pred_arr, age_pred_arr, point_arr,100 * gen_prob
 
-    def eval_live(self):
-        # 使用鏡頭測試
-        cap = cv2.VideoCapture(0)
-        self.model = AgePredModel(eval_use_only=True)
-
-        while True:
-            # Capture frame-by-frame
-            ret, frame = cap.read()
-
-            # Our operations on the frame come here
-            labeled, _, _ = eval_single(frame, self.model)
-
-            # Display the resulting frame
-            cv2.imshow('frame', labeled)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-        # When everything done, release the capture
-        cap.release()
-        cv2.destroyAllWindows()
-
+    
     def detect(self, image):
         # 圖片辨識
-        labeled, gen_pred, age_pred, point_arr = self.eval_single(image)
-        return labeled, gen_pred, age_pred, point_arr
+        labeled, gen_pred, age_pred, point_arr ,p= self.eval_single(image)
+        return labeled, gen_pred, age_pred, point_arr,p
