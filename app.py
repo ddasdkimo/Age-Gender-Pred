@@ -15,6 +15,7 @@ CORS(app)
 mAiTools = AiTools()
 
 savepath = "/dev/shm/"
+# savepath = "./"
 
 threadarrLock = threading.Lock()
 
@@ -137,7 +138,7 @@ def detect_max_face_age():
     int2gender = {0: 'Female', 1: 'Male'}
     name = "unknown"
     img = request.files.get('file')
-    name = request.values['token']
+    # name = request.values['token']
     end = time.time()
     print("檔案接收時間：%f 秒" % (end - start))
     start = time.time()
@@ -146,9 +147,8 @@ def detect_max_face_age():
     # 檢查資料夾是否存在
     if not os.path.isdir(savepath+"photo/"):
         os.mkdir(savepath+"photo/")
-    if not os.path.isdir(savepath+"photo/"+name):
-        os.mkdir(savepath+"photo/"+name)
-    filename = "photo/"+name+"/"+fileName+".jpg"
+    
+    filename = "photo"+"/"+fileName+".jpg"
     img.save(savepath+filename)
     detectImgNp = cv2.imread(savepath+filename)
     threadarrLock.acquire()

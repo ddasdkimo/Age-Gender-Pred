@@ -28,7 +28,10 @@ class AiTools:
         gen_pred, age_pred = -1, -1
         for pred, (x, y, w, h), score in zip(preds, rects, scores):
             # model predictions
+            
             gen_pred, gen_prob, age_pred, age_var = pred
+            if gen_prob < 0.85:
+                continue
             age_pred, gen_pred = float(age_pred), int(gen_pred)
             age_var, gen_prob = int(age_var), float(gen_prob)
             # vars

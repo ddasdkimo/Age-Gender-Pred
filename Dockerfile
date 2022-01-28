@@ -28,8 +28,7 @@ RUN pip install -r requirements.txt && python download_models.py
 
 
 
-# docker build -t raidavid/age_gender_pred_in_3090 .
-
+# docker build -t raidavid/age_gender_pred_in_3090 . && \
 # docker stop age_gender_pred_in_3090 && docker rm age_gender_pred_in_3090 && \
 # docker run \
 # --gpus all \
