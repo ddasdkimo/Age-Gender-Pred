@@ -45,4 +45,5 @@ RUN pip install -r requirements.txt && python download_models.py
 # --log-opt max-size=10m \
 # --log-opt max-file=10 \
 # --name age_gender_pred_in_3090 \
-# raidavid/age_gender_pred_in_3090
+# raidavid/age_gender_pred_in_3090 \
+# /bin/bash -c "export FLASK_APP=app.py && export FLASK_ENV=development && flask run  --host=0.0.0.0"
