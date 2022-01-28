@@ -66,11 +66,11 @@ def detect():
             "value": int2gender[gen_pred[i]] + "," + str(age_pred_arr[i]),
             "p": p
         })
-    shutil.move(savepath+filename, "/face/findhead_face/inf_"+str(int2gender[gen_pred[i]]) + "," + str(age_pred_arr[i]+".jpg"))
-    # try:
-    #     os.remove(savepath+filename)
-    # except OSError as e:
-    #     print(e)
+    # shutil.move(savepath+filename, "/face/findhead_face/inf_"+str(int2gender[gen_pred[i]]) + "," + str(age_pred_arr[i]+".jpg"))
+    try:
+        os.remove(savepath+filename)
+    except OSError as e:
+        print(e)
     return jsonify(arr)
 
 
@@ -127,3 +127,58 @@ def detects():
     print("資料處理時間：%f 秒" % (end - start))
     print("end")
     return jsonify(imagelist)
+
+
+
+@app.route("/detect_max_face_age", methods=['POST'])
+def detect_max_face_age():
+    # 貝拉臨時需求 找出最大的臉並回傳年齡
+    start = time.time()
+    int2gender = {0: 'Female', 1: 'Male'}
+    name = "unknown"
+    img = request.files.get('file')
+    name = request.values['token']
+    end = time.time()
+    print("檔案接收時間：%f 秒" % (end - start))
+    start = time.time()
+    # 使用時間戳記當作檔案名稱
+    fileName = str(time.time())
+    # 檢查資料夾是否存在
+    if not os.path.isdir(savepath+"photo/"):
+        os.mkdir(savepath+"photo/")
+    if not os.path.isdir(savepath+"photo/"+name):
+        os.mkdir(savepath+"photo/"+name)
+    filename = "photo/"+name+"/"+fileName+".jpg"
+    img.save(savepath+filename)
+    detectImgNp = cv2.imread(savepath+filename)
+    threadarrLock.acquire()
+    labeled, gen_pred, age_pred_arr, point_arr, p = mAiTools.detect(
+        detectImgNp)
+    threadarrLock.release()
+    end = time.time()
+    print("資料處理時間：%f 秒" % (end - start))
+
+    # filename = "photo/"+name+"/"+fileName+"_detect.jpg"
+    # img.save(filename)
+    # cv2.imwrite(filename, labeled)
+    arr = []
+    for i in range(len(point_arr)):
+        arr.append({
+            "name": "age_gender",
+            "point": point_arr[i],
+            "value": int2gender[gen_pred[i]] + "," + str(age_pred_arr[i]),
+            "p": p
+        })
+    # shutil.move(savepath+filename, "/face/findhead_face/inf_"+str(int2gender[gen_pred[i]]) + "," + str(age_pred_arr[i]+".jpg"))
+    try:
+        os.remove(savepath+filename)
+    except OSError as e:
+        print(e)
+    maxsize = 0
+    age = "0"
+    for item in arr:
+        size = item['point']['xmax'] - item['point']['xmin']
+        if size > maxsize:
+            maxsize = size
+            age = item['value'].split(",")[1]
+    return age
