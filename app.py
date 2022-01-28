@@ -48,8 +48,10 @@ def detect():
     filename = "photo/"+name+"/"+fileName+".jpg"
     img.save(savepath+filename)
     detectImgNp = cv2.imread(savepath+filename)
+    threadarrLock.acquire()
     labeled, gen_pred, age_pred_arr, point_arr, p = mAiTools.detect(
         detectImgNp)
+    threadarrLock.release()
     end = time.time()
     print("資料處理時間：%f 秒" % (end - start))
 
@@ -64,10 +66,11 @@ def detect():
             "value": int2gender[gen_pred[i]] + "," + str(age_pred_arr[i]),
             "p": p
         })
-    try:
-        os.remove(savepath+filename)
-    except OSError as e:
-        print(e)
+    shutil.move(savepath+filename, "/face/findhead_face/inf_"+str(int2gender[gen_pred[i]]) + "," + str(age_pred_arr[i]+".jpg"))
+    # try:
+    #     os.remove(savepath+filename)
+    # except OSError as e:
+    #     print(e)
     return jsonify(arr)
 
 
