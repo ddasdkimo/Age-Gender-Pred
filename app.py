@@ -129,7 +129,17 @@ def detects():
     print("end")
     return jsonify(imagelist)
 
-
+def rotate_img(img):
+    (h, w, d) = img.shape # 讀取圖片大小
+    center = (w // 2, h // 2) # 找到圖片中心
+    
+    # 第一個參數旋轉中心，第二個參數旋轉角度(-順時針/+逆時針)，第三個參數縮放比例
+    M = cv2.getRotationMatrix2D(center, 90, 1.0)
+    
+    # 第三個參數變化後的圖片大小
+    rotate_img = cv2.warpAffine(img, M, (w, h))
+    
+    return rotate_img
 
 @app.route("/detect_max_face_age", methods=['POST'])
 def detect_max_face_age():
@@ -150,6 +160,10 @@ def detect_max_face_age():
     
     filename = "photo"+"/"+fileName+".jpg"
     img.save(savepath+filename)
+    
+    detectImgNp1 = cv2.imread(savepath+filename)
+    detectImgNp1 = rotate_img(detectImgNp1)
+    cv2.imwrite(savepath+filename,detectImgNp1)
     detectImgNp = cv2.imread(savepath+filename)
     threadarrLock.acquire()
     labeled, gen_pred, age_pred_arr, point_arr, p = mAiTools.detect(
@@ -170,10 +184,7 @@ def detect_max_face_age():
             "p": p
         })
     # shutil.move(savepath+filename, "/face/findhead_face/inf_"+str(int2gender[gen_pred[i]]) + "," + str(age_pred_arr[i]+".jpg"))
-    try:
-        os.remove(savepath+filename)
-    except OSError as e:
-        print(e)
+    
     maxsize = 0
     age = "0"
     for item in arr:
@@ -181,4 +192,13 @@ def detect_max_face_age():
         if size > maxsize:
             maxsize = size
             age = item['value'].split(",")[1]
+    try:
+        if not os.path.isdir("./photo"):
+            os.mkdir("./photo/")
+        shutil.move(savepath+filename, "./photo/"+str(age)+"_"+fileName+".jpg")
+        # os.remove(savepath+filename)
+    except OSError as e:
+        print(e)
+    except:
+        print("未知錯誤")
     return age

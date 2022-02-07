@@ -30,7 +30,7 @@ class AiTools:
             # model predictions
             
             gen_pred, gen_prob, age_pred, age_var = pred
-            if gen_prob < 0.85:
+            if gen_prob < 0.75:
                 continue
             age_pred, gen_pred = float(age_pred), int(gen_pred)
             age_var, gen_prob = int(age_var), float(gen_prob)
